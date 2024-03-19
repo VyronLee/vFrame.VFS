@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using vFrame.Core.Utils;
+using vFrame.Core.Unity.Utils;
 
 namespace vFrame.VFS.UnityExtension
 {
@@ -11,7 +11,7 @@ namespace vFrame.VFS.UnityExtension
         private VFSPath _workingDir;
 
         public override void Open(VFSPath fsPath) {
-            if (fsPath == Application.streamingAssetsPath) {
+            if (fsPath.AsDirectory() == VFSPath.Create(Application.streamingAssetsPath).AsDirectory()) {
                 // Root directory
             }
             else if (!BetterStreamingAssets.DirectoryExists(fsPath)) {
@@ -26,36 +26,35 @@ namespace vFrame.VFS.UnityExtension
             _workingDir = PathUtils.AbsolutePathToRelativeStreamingAssetsPath(_workingDir);
         }
 
-        public override void Close() {
-
-        }
+        public override void Close() { }
 
         public override bool Exist(VFSPath filePath) {
-            return BetterStreamingAssets.FileExists(_workingDir + filePath);
+            return BetterStreamingAssets.FileExists(_workingDir.Combine(filePath));
         }
 
-        public override IVirtualFileStream GetStream(VFSPath filePath, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read,
+        public override IVirtualFileStream GetStream(VFSPath filePath, FileMode mode = FileMode.Open,
+            FileAccess access = FileAccess.Read,
             FileShare share = FileShare.Read) {
-            var fullPath = _workingDir + filePath;
+            var fullPath = _workingDir.Combine(filePath);
             var stream = BetterStreamingAssets.OpenRead(fullPath);
             return new SAStandardVirtualFileStream(stream);
         }
 
-        public override IReadonlyVirtualFileStreamRequest GetReadonlyStreamAsync(VFSPath filePath) {
-            var fullPath = _workingDir + filePath;
-            return new SAStandardReadonlyVirtualFileStreamRequest(fullPath);
+        public override IVirtualFileStreamRequest GetStreamAsync(VFSPath filePath) {
+            var fullPath = _workingDir.Combine(filePath);
+            return new SAStandardVirtualFileStreamRequest(fullPath);
         }
 
-        public override IList<VFSPath> List(IList<VFSPath> refs) {
+        public override IList<VFSPath> GetFiles(IList<VFSPath> refs) {
             throw new NotSupportedException();
         }
 
-        #pragma warning disable 67
+#pragma warning disable 67
         public override event OnGetStreamEventHandler OnGetStream;
-        #pragma warning restore 67
+#pragma warning restore 67
 
         public override string ToString() {
-            return VFSPath.Create(Application.streamingAssetsPath) + _workingDir;
+            return VFSPath.Create(Application.streamingAssetsPath).Combine(_workingDir);
         }
     }
 }

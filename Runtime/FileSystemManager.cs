@@ -1,4 +1,4 @@
-﻿using vFrame.Core.Utils;
+﻿using vFrame.Core.Unity.Utils;
 
 namespace vFrame.VFS.UnityExtension
 {
@@ -10,7 +10,7 @@ namespace vFrame.VFS.UnityExtension
             base.OnCreate();
         }
 
-        public new IVirtualFileSystem AddFileSystem(VFSPath vfsPath) {
+        public override IVirtualFileSystem AddFileSystem(VFSPath vfsPath) {
             if (!PathUtils.IsStreamingAssetsPath(vfsPath)) {
                 return base.AddFileSystem(vfsPath);
             }
@@ -27,7 +27,7 @@ namespace vFrame.VFS.UnityExtension
 
             virtualFileSystem.Open(vfsPath);
 
-            AddFileSystem(virtualFileSystem);
+            base.AddFileSystem(virtualFileSystem);
             return virtualFileSystem;
         }
     }

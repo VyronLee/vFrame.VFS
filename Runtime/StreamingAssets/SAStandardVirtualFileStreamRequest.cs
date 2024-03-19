@@ -1,18 +1,18 @@
 ﻿using System.IO;
 using UnityEngine.Networking;
 using vFrame.Core.Loggers;
-using vFrame.Core.Utils;
+using vFrame.Core.Unity.Utils;
 
 namespace vFrame.VFS.UnityExtension
 {
-    internal class SAStandardReadonlyVirtualFileStreamRequest : ReadonlyVirtualFileStreamRequest
+    internal class SAStandardVirtualFileStreamRequest : VirtualFileStreamRequest
     {
-        private UnityWebRequest _request;
         private bool _failed;
         private bool _finished;
+        private UnityWebRequest _request;
 
-        public SAStandardReadonlyVirtualFileStreamRequest(string path) {
-            var absolutePath = PathUtils.RelativeStreamingAssetsPathToAbsolutePath(path);
+        public SAStandardVirtualFileStreamRequest(string path) {
+            var absolutePath = path.RelativeStreamingAssetsPathToAbsolutePath();
             _request = UnityWebRequest.Get(absolutePath);
         }
 
