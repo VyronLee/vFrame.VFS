@@ -1,9 +1,9 @@
 ﻿namespace vFrame.VFS
 {
-    public abstract class ReadonlyVirtualFileStreamRequest : IReadonlyVirtualFileStreamRequest
+    public abstract class VirtualFileStreamRequest : IVirtualFileStreamRequest
     {
-        protected bool _disposed;
         protected readonly object _lockObject = new object();
+        protected bool _disposed;
 
         public abstract bool MoveNext();
 

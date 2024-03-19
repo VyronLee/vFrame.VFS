@@ -81,7 +81,13 @@
       }
     },
     "com.vyronlee.vframe.core": {
-      "version": "file:D:/Individuals/vFrame/vFrame.Core/Output",
+      "version": "file:D:/Individuals/vFrame/vFrame.Core/Assets/vFrame.Core",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.vyronlee.vframe.core.unity": {
+      "version": "file:D:/Individuals/vFrame/vFrame.Core/Assets/vFrame.Core.Unity",
       "depth": 0,
       "source": "local",
       "dependencies": {}

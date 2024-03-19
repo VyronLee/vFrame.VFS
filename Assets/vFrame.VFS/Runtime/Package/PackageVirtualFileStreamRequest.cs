@@ -5,20 +5,14 @@ using vFrame.Core.Profiles;
 
 namespace vFrame.VFS
 {
-    internal class PackageReadonlyVirtualFileStreamRequest : ReadonlyVirtualFileStreamRequest
+    internal class PackageVirtualFileStreamRequest : VirtualFileStreamRequest
     {
-        private class PackageStreamContext
-        {
-            public PackageVirtualFileSystemStream Stream;
-            public PackageBlockInfo BlockInfo;
-        }
-
         private bool _finished;
 
-        public PackageReadonlyVirtualFileStreamRequest(PackageVirtualFileSystemStream vpkStream, PackageBlockInfo blockInfo) {
+        public PackageVirtualFileStreamRequest(PackageVirtualFileSystemStream vpkStream, PackageBlockInfo blockInfo) {
             var context = new PackageStreamContext {
                 Stream = vpkStream,
-                BlockInfo = blockInfo,
+                BlockInfo = blockInfo
             };
             ThreadPool.QueueUserWorkItem(OpenPackageStreamAsync, context);
         }
@@ -26,13 +20,14 @@ namespace vFrame.VFS
         private void OpenPackageStreamAsync(object state) {
             try {
                 PerfProfile.Start(out var id);
-                PerfProfile.Pin("PackageReadonlyVirtualFileStreamRequest:OpenPackageStreamAsync", id);
+                PerfProfile.Pin("PackageVirtualFileStreamRequest:OpenPackageStreamAsync", id);
 
-                var context = (PackageStreamContext) state;
+                var context = (PackageStreamContext)state;
                 var vpkStream = context.Stream;
                 var stream = new PackageVirtualFileStream(vpkStream, context.BlockInfo);
-                if (!stream.Open())
+                if (!stream.Open()) {
                     throw new PackageStreamOpenFailedException();
+                }
                 Stream = stream;
 
                 PerfProfile.Unpin(id);
@@ -40,8 +35,9 @@ namespace vFrame.VFS
                 lock (_lockObject) {
                     _finished = true;
 
-                    if (!_disposed)
+                    if (!_disposed) {
                         return;
+                    }
 
                     Stream.Dispose();
                     Stream = null;
@@ -56,6 +52,12 @@ namespace vFrame.VFS
             lock (_lockObject) {
                 return !_finished;
             }
+        }
+
+        private class PackageStreamContext
+        {
+            public PackageBlockInfo BlockInfo;
+            public PackageVirtualFileSystemStream Stream;
         }
     }
 }

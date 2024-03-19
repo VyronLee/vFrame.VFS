@@ -1,0 +1,17 @@
+{
+    "name": "vFrame.VFS.UnityExtension",
+    "references": [
+        "vFrame.VFS",
+        "vFrame.Core",
+        "vFrame.Core.Unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

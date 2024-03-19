@@ -7,13 +7,13 @@ namespace vFrame.VFS
     {
         long Position { get; set; }
 
+        long Length { get; }
+
         void Flush();
 
         long Seek(long offset, SeekOrigin origin);
 
         void SetLength(long value);
-
-        long Length { get; }
 
         int Read(byte[] buffer, int offset, int count);
 

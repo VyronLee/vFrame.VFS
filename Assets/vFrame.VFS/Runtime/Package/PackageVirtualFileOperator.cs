@@ -10,7 +10,7 @@ namespace vFrame.VFS
             CalculatingBlockInfo,
             WritingHeader,
             WritingBlockInfo,
-            WritingBlockData,
+            WritingBlockData
         }
 
         public static void CreatePackage(string directory,
@@ -39,7 +39,7 @@ namespace vFrame.VFS
             var stdFileSystem = new StandardVirtualFileSystem();
             stdFileSystem.Open(dir);
 
-            var files = stdFileSystem.List();
+            var files = stdFileSystem.GetFiles();
 
             if (force && File.Exists(outputPath)) {
                 File.Delete(outputPath);
@@ -55,6 +55,7 @@ namespace vFrame.VFS
                         packageSystem.AddStream(path, fd, encryptType, encryptKey, compressType);
                     }
                 }
+
                 packageSystem.Flush(true);
             }
             finally {
@@ -75,11 +76,11 @@ namespace vFrame.VFS
             var stdFileSystem = new StandardVirtualFileSystem();
             stdFileSystem.Open(destPath);
 
-            var files = pkgFileSystem.List();
+            var files = pkgFileSystem.GetFiles();
             var idx = 0;
             var total = files.Count;
             foreach (var path in files) {
-                using (var input = (Stream) pkgFileSystem.GetStream(path)) {
+                using (var input = (Stream)pkgFileSystem.GetStream(path)) {
                     var absolute = VFSPath.Create(destPath).Combine(path);
                     var dirName = absolute.GetDirectoryName();
                     Directory.CreateDirectory(dirName);

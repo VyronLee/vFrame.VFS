@@ -14,7 +14,7 @@ namespace vFrame.VFS
         public const long Id = 0x766672616d65;
 
         // 包文件版本号
-        public const long Version = 2;
+        public const long Version = 3;
 
         // 包文件后缀
         public const string Ext = ".vpk";

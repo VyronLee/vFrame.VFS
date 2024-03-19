@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using vFrame.Core.Compress.Services;
-using vFrame.Core.Crypto;
+using vFrame.Core.Compression;
+using vFrame.Core.Encryption;
 using vFrame.Core.Extensions;
 using vFrame.Core.Loggers;
 
@@ -34,7 +34,7 @@ namespace vFrame.VFS
             if (_openFromStream) {
                 return;
             }
-            _vpkStream = new FileStream(_vpkVfsPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            _vpkStream = new FileStream(PackageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         }
 
         private void CloseFileStreamIfRequired() {
@@ -67,6 +67,7 @@ namespace vFrame.VFS
                 blockInfo.RawData = null;
                 _blockInfos[i] = blockInfo;
             }
+
             _dirty = false;
         }
 
@@ -103,9 +104,11 @@ namespace vFrame.VFS
                         writer.Write(buffer);
                     }
                 }
+
                 stream.Seek(0, SeekOrigin.Begin);
 
-                AddStream(PackageFileSystemConst.FileListFileName, stream, 0, 0, PackageFileSystemConst.FileListCompressType);
+                AddStream(PackageFileSystemConst.FileListFileName, stream, 0, 0,
+                    PackageFileSystemConst.FileListCompressType);
             }
         }
 
@@ -123,14 +126,15 @@ namespace vFrame.VFS
             }
         }
 
-        private static PackageBlockInfo CalculateBlockInfo(Stream stream, long encryptType, long encryptKey, long compressType) {
+        private static PackageBlockInfo CalculateBlockInfo(Stream stream, long encryptType, long encryptKey,
+            long compressType) {
             var blockInfo = new PackageBlockInfo {
                 OriginalSize = stream.Length,
                 CompressedSize = stream.Length
             };
 
             var buffer = new byte[stream.Length];
-            if (stream.Read(buffer, 0, (int) stream.Length) <= 0) {
+            if (stream.Read(buffer, 0, (int)stream.Length) <= 0) {
                 blockInfo.OriginalSize = blockInfo.CompressedSize = 0;
             }
 
@@ -161,9 +165,10 @@ namespace vFrame.VFS
             using (var encrypted = new MemoryStream()) {
                 using (var input = new MemoryStream(buffer)) {
                     var keyBytes = BitConverter.GetBytes(encryptKey);
-                    var cryptoService = CryptoService.CreateCryptoService((CryptoType) (encryptType >> 12));
-                    cryptoService.Encrypt(input, encrypted, keyBytes, keyBytes.Length);
-                    CryptoService.DestroyCryptoService(cryptoService);
+                    using (var encryptor = EncryptorPool.Instance().Rent((EncryptorType)(encryptType >> 12))) {
+                        encryptor.Encrypt(input, encrypted, keyBytes, keyBytes.Length);
+                    }
+
                     return encrypted.ToArray();
                 }
             }
@@ -172,9 +177,10 @@ namespace vFrame.VFS
         private static byte[] CompressBytes(byte[] buffer, long compressType) {
             using (var compressed = new MemoryStream()) {
                 using (var input = new MemoryStream(buffer)) {
-                    var compressService = CompressService.CreateCompressService((CompressType) (compressType >> 8));
-                    compressService.Compress(input, compressed);
-                    CompressService.DestroyCompressService(compressService);
+                    using (var compressor = CompressorPool.Instance().Rent((CompressorType)(compressType >> 8))) {
+                        compressor.Compress(input, compressed);
+                    }
+
                     return compressed.ToArray();
                 }
             }
@@ -196,6 +202,7 @@ namespace vFrame.VFS
                 writer.Write(_header.Reserved2);
                 writer.Write(_header.Reserved3);
             }
+
             OnProgress?.Invoke(PackageVirtualFileOperator.ProcessState.WritingHeader, 1, 1);
         }
 
@@ -207,16 +214,19 @@ namespace vFrame.VFS
                 for (var i = 0; i < _blockInfos.Count; i++) {
                     var block = _blockInfos[i];
                     if (skipDeleted && (block.Flags & BlockFlags.BlockDeleted) > 0) {
-                        OnProgress?.Invoke(PackageVirtualFileOperator.ProcessState.WritingBlockInfo, idx++, _blockInfos.Count);
+                        OnProgress?.Invoke(PackageVirtualFileOperator.ProcessState.WritingBlockInfo, idx++,
+                            _blockInfos.Count);
                         continue;
                     }
+
                     writer.Write(block.Flags);
                     writer.Write(block.Offset);
                     writer.Write(block.OriginalSize);
                     writer.Write(block.CompressedSize);
                     writer.Write(block.EncryptKey);
 
-                    OnProgress?.Invoke(PackageVirtualFileOperator.ProcessState.WritingBlockInfo, idx++, _blockInfos.Count);
+                    OnProgress?.Invoke(PackageVirtualFileOperator.ProcessState.WritingBlockInfo, idx++,
+                        _blockInfos.Count);
                 }
             }
         }

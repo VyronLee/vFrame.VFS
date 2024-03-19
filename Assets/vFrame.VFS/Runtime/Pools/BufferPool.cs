@@ -9,15 +9,13 @@
 //============================================================
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Threading;
 using vFrame.Core.Loggers;
-using vFrame.Core.ObjectPools.ArrayPools;
 
 namespace vFrame.VFS
 {
-    internal class BufferPool : ArrayPool<byte>
+    internal class BufferPool
     {
 #if VFRAME_VFS_LARGE_BUFFER
         private const int BucketCount = 4;
@@ -32,15 +30,17 @@ namespace vFrame.VFS
 #else
         private const int BucketCount = 2;
 
-        // 16M total
+        // 4M total
         private static readonly int[,] BucketSizes = new int[BucketCount, 2] {
-            {128 * 1024, 8}, // 128K per buffer, 1M total
-            {512 * 1024, 6}, // 512K per buffer, 3M total
+            { 128 * 1024, 8 }, // 128K per buffer, 1M total
+            { 512 * 1024, 6 } // 512K per buffer, 3M total
         };
 #endif
 
 
-        private readonly ConcurrentDictionary<int, Bucket<byte>> _buckets = new ConcurrentDictionary<int, Bucket<byte>>();
+        private readonly ConcurrentDictionary<int, Bucket<byte>> _buckets =
+            new ConcurrentDictionary<int, Bucket<byte>>();
+
         private readonly bool _logMissing;
 
         private BufferPool(bool logMissing = false) {
@@ -52,7 +52,7 @@ namespace vFrame.VFS
             _logMissing = logMissing;
         }
 
-        public override byte[] Rent(int minimumLength) {
+        public byte[] Rent(int minimumLength) {
             var idx = SelectBucketToRent(minimumLength);
             if (idx < 0) {
                 return new byte[minimumLength];
@@ -61,8 +61,9 @@ namespace vFrame.VFS
             byte[] buffer;
             if (_buckets.TryGetValue(idx, out var bucket)) {
                 buffer = bucket.Rent();
-                if (null != buffer)
+                if (null != buffer) {
                     return buffer;
+                }
             }
 
             buffer = new byte[minimumLength];
@@ -73,7 +74,7 @@ namespace vFrame.VFS
             return buffer;
         }
 
-        public override void Return(byte[] array, bool clearArray = false) {
+        public void Return(byte[] array, bool clearArray = false) {
             if (null == array) {
                 throw new ArgumentNullException(nameof(array));
             }
@@ -110,14 +111,13 @@ namespace vFrame.VFS
             return -1;
         }
 
-        private static BufferPool s_sharedInstance = null;
+        private static BufferPool _sharedInstance;
 
-        public new static BufferPool Shared => Volatile.Read(ref s_sharedInstance) ?? EnsureSharedCreated();
+        public static BufferPool Shared => Volatile.Read(ref _sharedInstance) ?? EnsureSharedCreated();
 
-        private static BufferPool EnsureSharedCreated()
-        {
-            Interlocked.CompareExchange(ref s_sharedInstance, new BufferPool(false), null);
-            return s_sharedInstance;
+        private static BufferPool EnsureSharedCreated() {
+            Interlocked.CompareExchange(ref _sharedInstance, new BufferPool(), null);
+            return _sharedInstance;
         }
     }
 }
