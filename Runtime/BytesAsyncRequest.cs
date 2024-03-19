@@ -10,7 +10,7 @@ namespace vFrame.VFS
 
         protected override byte[] OnThreadedHandle(string arg) {
             if (null == _fileSystemManager) {
-                throw new ArgumentNullException("FileSystemManager cannot be null");
+                throw new ArgumentNullException(nameof(_fileSystemManager), "FileSystemManager cannot be null");
             }
             return _fileSystemManager.ReadAllBytes(arg);
         }

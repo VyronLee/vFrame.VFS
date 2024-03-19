@@ -11,8 +11,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using vFrame.Core.Compress.Services;
-using vFrame.Core.Crypto;
+using vFrame.Core.Compression;
+using vFrame.Core.Encryption;
 using vFrame.Core.Profiles;
 
 namespace vFrame.VFS
@@ -22,10 +22,10 @@ namespace vFrame.VFS
         private readonly PackageBlockInfo _blockInfo;
 
         private readonly PackageVirtualFileSystemStream _vpkStream;
+        private bool _closed;
         private byte[] _dataBuffer;
         private MemoryStream _memoryStream;
         private bool _opened;
-        private bool _closed;
 
         internal PackageVirtualFileStream(PackageVirtualFileSystemStream vpkStream, PackageBlockInfo blockInfo) {
             _vpkStream = vpkStream;
@@ -111,8 +111,12 @@ namespace vFrame.VFS
         //=======================================================//
 
         private void ValidateStreamState() {
-            if (!_opened) throw new PackageStreamNotOpenedException();
-            if (_closed) throw new PackageStreamClosedException();
+            if (!_opened) {
+                throw new PackageStreamNotOpenedException();
+            }
+            if (_closed) {
+                throw new PackageStreamClosedException();
+            }
         }
 
         private bool InternalOpen() {
@@ -141,23 +145,23 @@ namespace vFrame.VFS
             if ((_blockInfo.Flags & BlockFlags.BlockCompressed) > 0) {
                 PerfProfile.Start(out var id);
                 PerfProfile.Pin($"PackageVirtualFileStream:Decompress size: {_blockInfo.OriginalSize:n0} bytes: ", id);
-                var buffer = BufferPool.Shared.Rent((int) _blockInfo.OriginalSize);
+                var buffer = BufferPool.Shared.Rent((int)_blockInfo.OriginalSize);
                 using (var decompressedStream = new MemoryStream(buffer)) {
                     decompressedStream.SetLength(0);
                     decompressedStream.Seek(0, SeekOrigin.Begin);
 
                     var compressType = (_blockInfo.Flags & BlockFlags.BlockCompressed) >> 8;
-                    var compressService = CompressService.CreateCompressService((CompressType) compressType);
-
-                    tempStream.Seek(0, SeekOrigin.Begin);
-                    compressService.Decompress(tempStream, decompressedStream);
-                    CompressService.DestroyCompressService(compressService);
+                    using (var compressor = CompressorPool.Instance().Rent((CompressorType)compressType)) {
+                        tempStream.Seek(0, SeekOrigin.Begin);
+                        compressor.Decompress(tempStream, decompressedStream);
+                    }
 
                     tempStream.SetLength(0);
                     tempStream.Seek(0, SeekOrigin.Begin);
 
-                    BufferedCopyTo(decompressedStream, tempStream, 0, (int) _blockInfo.OriginalSize);
+                    BufferedCopyTo(decompressedStream, tempStream, 0, (int)_blockInfo.OriginalSize);
                 }
+
                 BufferPool.Shared.Return(buffer);
                 PerfProfile.Unpin(id);
             }
@@ -166,24 +170,24 @@ namespace vFrame.VFS
             if ((_blockInfo.Flags & BlockFlags.BlockEncrypted) > 0) {
                 PerfProfile.Start(out var id);
                 PerfProfile.Pin($"PackageVirtualFileStream:Decrypt size: {_blockInfo.OriginalSize:n0} bytes", id);
-                var buffer = BufferPool.Shared.Rent((int) _blockInfo.OriginalSize);
+                var buffer = BufferPool.Shared.Rent((int)_blockInfo.OriginalSize);
                 using (var decryptedStream = new MemoryStream(buffer)) {
                     decryptedStream.SetLength(0);
                     decryptedStream.Seek(0, SeekOrigin.Begin);
 
                     var cryptoKey = BitConverter.GetBytes(_blockInfo.EncryptKey);
                     var cryptoType = (_blockInfo.Flags & BlockFlags.BlockEncrypted) >> 12;
-                    var cryptoService = CryptoService.CreateCryptoService((CryptoType) cryptoType);
-
-                    tempStream.Seek(0, SeekOrigin.Begin);
-                    cryptoService.Decrypt(tempStream, decryptedStream, cryptoKey, cryptoKey.Length);
-                    CryptoService.DestroyCryptoService(cryptoService);
+                    using (var encryptor = EncryptorPool.Instance().Rent((EncryptorType)cryptoType)) {
+                        tempStream.Seek(0, SeekOrigin.Begin);
+                        encryptor.Decrypt(tempStream, decryptedStream, cryptoKey, cryptoKey.Length);
+                    }
 
                     tempStream.SetLength(0);
                     tempStream.Seek(0, SeekOrigin.Begin);
 
-                    BufferedCopyTo(decryptedStream, tempStream, 0, (int) _blockInfo.OriginalSize);
+                    BufferedCopyTo(decryptedStream, tempStream, 0, (int)_blockInfo.OriginalSize);
                 }
+
                 BufferPool.Shared.Return(buffer);
                 PerfProfile.Unpin(id);
             }
@@ -201,19 +205,22 @@ namespace vFrame.VFS
         }
 
         private void ValidateBlockInfo(Stream inputStream) {
-            if ((_blockInfo.Flags & BlockFlags.BlockExists) <= 0)
+            if ((_blockInfo.Flags & BlockFlags.BlockExists) <= 0) {
                 throw new PackageBlockDisposedException();
+            }
 
             var sizeOfHeader = PackageHeader.GetMarshalSize();
-            if (_blockInfo.Offset < sizeOfHeader)
+            if (_blockInfo.Offset < sizeOfHeader) {
                 throw new PackageBlockOffsetErrorException(_blockInfo.Offset, sizeOfHeader);
+            }
 
             var blockSize = (_blockInfo.Flags & BlockFlags.BlockCompressed) > 0
                 ? _blockInfo.CompressedSize
                 : _blockInfo.OriginalSize;
 
-            if (inputStream.Length < _blockInfo.Offset + blockSize)
+            if (inputStream.Length < _blockInfo.Offset + blockSize) {
                 throw new PackageStreamDataErrorException(_blockInfo.Offset + blockSize, inputStream.Length);
+            }
         }
 
         private static void BufferedCopyTo(Stream from, Stream to, long offset, int count) {
@@ -228,6 +235,7 @@ namespace vFrame.VFS
                 to.Write(buffer, 0, read);
                 count -= read;
             }
+
             BufferPool.Shared.Return(buffer);
         }
     }

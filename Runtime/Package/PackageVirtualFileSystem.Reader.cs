@@ -6,8 +6,9 @@ namespace vFrame.VFS
     public partial class PackageVirtualFileSystem
     {
         private bool ReadHeader() {
-            if (_vpkStream.Length < PackageHeader.GetMarshalSize())
+            if (_vpkStream.Length < PackageHeader.GetMarshalSize()) {
                 return false;
+            }
 
             _vpkStream.Seek(0, SeekOrigin.Begin);
 
@@ -51,17 +52,19 @@ namespace vFrame.VFS
                     }
                 }
             }
+
             return true;
         }
 
         private bool ReadBlockTable() {
-            if (_vpkStream.Length < _header.BlockTableOffset + _header.BlockTableSize)
+            if (_vpkStream.Length < _header.BlockTableOffset + _header.BlockTableSize) {
                 return false;
+            }
 
             _blockInfos.Clear();
 
             _vpkStream.Seek(_header.BlockTableOffset, SeekOrigin.Begin);
-            while (_vpkStream.Position < _header.BlockTableOffset + _header.BlockTableSize)
+            while (_vpkStream.Position < _header.BlockTableOffset + _header.BlockTableSize) {
                 using (var reader = new BinaryReader(_vpkStream, Encoding.UTF8, true)) {
                     var block = new PackageBlockInfo {
                         Flags = reader.ReadInt64(),
@@ -72,9 +75,11 @@ namespace vFrame.VFS
                     };
                     _blockInfos.Add(block);
                 }
+            }
 
-            if (_vpkStream.Position != _header.BlockTableOffset + _header.BlockTableSize)
+            if (_vpkStream.Position != _header.BlockTableOffset + _header.BlockTableSize) {
                 return false;
+            }
 
             return true;
         }

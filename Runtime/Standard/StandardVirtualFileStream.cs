@@ -11,11 +11,6 @@ namespace vFrame.VFS
             _fileStream.Seek(0, SeekOrigin.Begin);
         }
 
-        public override void Close() {
-            _fileStream.Close();
-            base.Close();
-        }
-
         public override bool CanRead => _fileStream.CanRead;
         public override bool CanSeek => _fileStream.CanSeek;
         public override bool CanWrite => _fileStream.CanWrite;
@@ -24,6 +19,11 @@ namespace vFrame.VFS
         public override long Position {
             get => _fileStream.Position;
             set => _fileStream.Position = value;
+        }
+
+        public override void Close() {
+            _fileStream.Close();
+            base.Close();
         }
 
         public override void Flush() {

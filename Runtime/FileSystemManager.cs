@@ -6,29 +6,11 @@ using vFrame.Core.Base;
 
 namespace vFrame.VFS
 {
-    public class FileSystemManager : BaseObject , IFileSystemManager
+    public class FileSystemManager : BaseObject, IFileSystemManager
     {
-        private ConcurrentDictionary<int, IVirtualFileSystem> _fileSystems;
-        private int _count;
-
         private readonly object _lockObject = new object();
-
-        protected override void OnCreate() {
-            lock (_lockObject) {
-                _fileSystems = new ConcurrentDictionary<int, IVirtualFileSystem>();
-            }
-            Interlocked.Exchange(ref _count, 0);
-        }
-
-        protected override void OnDestroy() {
-            lock (_lockObject) {
-                foreach (var kv in _fileSystems) {
-                    kv.Value.Close();
-                }
-                _fileSystems.Clear();
-            }
-            Interlocked.Exchange(ref _count, 0);
-        }
+        private int _count;
+        private ConcurrentDictionary<int, IVirtualFileSystem> _fileSystems;
 
         public virtual IVirtualFileSystem AddFileSystem(VFSPath vfsPath) {
             IVirtualFileSystem virtualFileSystem;
@@ -59,15 +41,17 @@ namespace vFrame.VFS
             lock (_lockObject) {
                 var index = -1;
                 foreach (var kv in _fileSystems) {
-                    if (kv.Value != virtualFileSystem)
+                    if (kv.Value != virtualFileSystem) {
                         continue;
+                    }
 
                     index = kv.Key;
                     break;
                 }
 
-                if (index < 0)
+                if (index < 0) {
                     return;
+                }
 
                 if (_fileSystems.TryRemove(index, out var fs)) {
                     Interlocked.Decrement(ref _count);
@@ -78,38 +62,45 @@ namespace vFrame.VFS
         public IVirtualFileStream GetStream(string path, FileMode mode = FileMode.Open) {
             var count = _count;
             for (var i = 0; i < count; i++) {
-                if (!_fileSystems.TryGetValue(i, out var fileSystem))
+                if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
+                }
 
-                if (fileSystem.Exist(path)) {
+                if (fileSystem.Exist(path))
                     //Logger.Info(FileSystemConst.LogTag, "Get stream: \"{0}\" from file system: \"{1}\"",
                     //    path, fileSystem);
+                {
                     return fileSystem.GetStream(path, mode);
                 }
             }
+
             return null;
         }
 
-        public IReadonlyVirtualFileStreamRequest GetReadonlyStreamAsync(string path) {
+        public IVirtualFileStreamRequest GetStreamAsync(string path) {
             var count = _count;
             for (var i = 0; i < count; i++) {
-                if (!_fileSystems.TryGetValue(i, out var fileSystem))
+                if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
+                }
 
-                if (fileSystem.Exist(path)) {
+                if (fileSystem.Exist(path))
                     //Logger.Info(FileSystemConst.LogTag, "Get stream async: \"{0}\" from file system: \"{1}\"",
                     //    path, fileSystem);
-                    return fileSystem.GetReadonlyStreamAsync(path);
+                {
+                    return fileSystem.GetStreamAsync(path);
                 }
             }
+
             return null;
         }
 
         public IEnumerator<IVirtualFileSystem> GetEnumerator() {
             var count = _count;
             for (var i = 0; i < count; i++) {
-                if (!_fileSystems.TryGetValue(i, out var fileSystem))
+                if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
+                }
                 yield return fileSystem;
             }
         }
@@ -140,6 +131,25 @@ namespace vFrame.VFS
             };
             request.Create(path);
             return request;
+        }
+
+        protected override void OnCreate() {
+            lock (_lockObject) {
+                _fileSystems = new ConcurrentDictionary<int, IVirtualFileSystem>();
+            }
+
+            Interlocked.Exchange(ref _count, 0);
+        }
+
+        protected override void OnDestroy() {
+            lock (_lockObject) {
+                foreach (var kv in _fileSystems) {
+                    kv.Value.Close();
+                }
+                _fileSystems.Clear();
+            }
+
+            Interlocked.Exchange(ref _count, 0);
         }
     }
 }

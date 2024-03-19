@@ -42,17 +42,17 @@ namespace vFrame.VFS
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        IReadonlyVirtualFileStreamRequest GetReadonlyStreamAsync(VFSPath filePath);
+        IVirtualFileStreamRequest GetStreamAsync(VFSPath filePath);
 
         /// <summary>
         ///     List all files in this file system.
         /// </summary>
-        IList<VFSPath> List();
+        IList<VFSPath> GetFiles();
 
         /// <summary>
         ///     List all files in this file system.
         /// </summary>
-        IList<VFSPath> List(IList<VFSPath> refs);
+        IList<VFSPath> GetFiles(IList<VFSPath> refs);
 
         /// <summary>
         ///     On get stream callback.
@@ -60,5 +60,6 @@ namespace vFrame.VFS
         event OnGetStreamEventHandler OnGetStream;
     }
 
-    public delegate void OnGetStreamEventHandler(string vfsPath, string filePath, long originalSize, long compressedSize);
+    public delegate void OnGetStreamEventHandler(string vfsPath, string filePath, long originalSize,
+        long compressedSize);
 }

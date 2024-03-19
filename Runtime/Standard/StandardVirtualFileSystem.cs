@@ -10,14 +10,12 @@ namespace vFrame.VFS
 
         public override void Open(VFSPath fsPath) {
             if (!Directory.Exists(fsPath)) {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException(fsPath);
             }
-
             _workingDir = fsPath.AsDirectory();
         }
 
-        public override void Close() {
-        }
+        public override void Close() { }
 
         public override bool Exist(VFSPath filePath) {
             return File.Exists(_workingDir + filePath);
@@ -45,7 +43,7 @@ namespace vFrame.VFS
             return new StandardVirtualFileStream(fileStream);
         }
 
-        public override IReadonlyVirtualFileStreamRequest GetReadonlyStreamAsync(VFSPath filePath) {
+        public override IVirtualFileStreamRequest GetStreamAsync(VFSPath filePath) {
             if (null == filePath) {
                 throw new ArgumentNullException(nameof(filePath));
             }
@@ -61,10 +59,10 @@ namespace vFrame.VFS
             var fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read);
             //Logger.Info(PackageFileSystemConst.LogTag, "Read stream async: {0}", fileName);
             OnGetStream?.Invoke(_workingDir, filePath, fileStream.Length, fileStream.Length);
-            return new StandardReadonlyVirtualFileStreamRequest(fileStream);
+            return new StandardVirtualFileStreamRequest(fileStream);
         }
 
-        public override IList<VFSPath> List(IList<VFSPath> refs) {
+        public override IList<VFSPath> GetFiles(IList<VFSPath> refs) {
             var dirInfo = new DirectoryInfo(_workingDir);
             TravelDirectory(dirInfo, refs);
             return refs;

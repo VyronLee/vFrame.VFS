@@ -2,8 +2,5 @@
 
 namespace vFrame.VFS
 {
-    public interface IBytesAsyncRequest : IAsyncRequest<byte[]>
-    {
-
-    }
+    public interface IBytesAsyncRequest : IAsyncRequest<byte[]> { }
 }

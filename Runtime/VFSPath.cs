@@ -29,8 +29,9 @@ namespace vFrame.VFS
         }
 
         private VFSPath EnsureDirectoryPath() {
-            if (!_value.EndsWith("/"))
+            if (!_value.EndsWith("/")) {
                 _value += "/";
+            }
             return this;
         }
 
@@ -108,8 +109,8 @@ namespace vFrame.VFS
         public bool IsAbsolute() {
             // unix style: "/user/data"
             // window style: "c:/user/data"
-            return _value.Length > 0 && _value[0] == '/'
-                   || _value.Length >= 3 && _value[1] == ':' && _value[2] == '/';
+            return (_value.Length > 0 && _value[0] == '/')
+                   || (_value.Length >= 3 && _value[1] == ':' && _value[2] == '/');
         }
 
         public override string ToString() {
