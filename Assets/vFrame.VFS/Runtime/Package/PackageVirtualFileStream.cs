@@ -209,7 +209,7 @@ namespace vFrame.VFS
                 throw new PackageBlockDisposedException();
             }
 
-            var sizeOfHeader = PackageHeader.GetMarshalSize();
+            var sizeOfHeader = PackageHeader.GetStructSize();
             if (_blockInfo.Offset < sizeOfHeader) {
                 throw new PackageBlockOffsetErrorException(_blockInfo.Offset, sizeOfHeader);
             }

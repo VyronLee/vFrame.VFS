@@ -24,7 +24,7 @@ namespace vFrame.VFS
         public long Reserved3;
 
         // 80 bytes
-        public static int GetMarshalSize() {
+        public static int GetStructSize() {
             return sizeof(long) * 10;
         }
     }
@@ -38,7 +38,7 @@ namespace vFrame.VFS
         public long EncryptKey;
 
         // 40 bytes
-        public static int GetMarshalSize() {
+        public static int GetStructSize() {
             return sizeof(long) * 5;
         }
 
