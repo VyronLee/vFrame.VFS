@@ -4,11 +4,11 @@ using vFrame.Core.MultiThreading;
 
 namespace vFrame.VFS
 {
-    public class TextAsyncRequest : ThreadedAsyncRequest<string, string>, ITextAsyncRequest
+    public class TextAsyncRequest : ThreadedTask<string, string>, ITextAsyncRequest
     {
         internal IFileSystemManager _fileSystemManager { get; set; }
 
-        protected override string OnThreadedHandle(string arg) {
+        protected override string OnHandleTask(string arg) {
             if (null == _fileSystemManager) {
                 throw new ArgumentNullException("FileSystemManager cannot be null");
             }

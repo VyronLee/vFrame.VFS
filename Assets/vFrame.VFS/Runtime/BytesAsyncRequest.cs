@@ -4,15 +4,15 @@ using vFrame.Core.MultiThreading;
 
 namespace vFrame.VFS
 {
-    public class BytesAsyncRequest : ThreadedAsyncRequest<byte[], string>, IBytesAsyncRequest
+    public class BytesAsyncRequest : ThreadedTask<byte[], string>, IBytesAsyncRequest
     {
-        internal IFileSystemManager _fileSystemManager { get; set; }
+        internal IFileSystemManager FileSystemManager { get; set; }
 
-        protected override byte[] OnThreadedHandle(string arg) {
-            if (null == _fileSystemManager) {
-                throw new ArgumentNullException(nameof(_fileSystemManager), "FileSystemManager cannot be null");
+        protected override byte[] OnHandleTask(string arg) {
+            if (null == FileSystemManager) {
+                throw new ArgumentNullException(nameof(FileSystemManager), "FileSystemManager cannot be null");
             }
-            return _fileSystemManager.ReadAllBytes(arg);
+            return FileSystemManager.ReadAllBytes(arg);
         }
 
         protected override void ErrorHandler(Exception e) {

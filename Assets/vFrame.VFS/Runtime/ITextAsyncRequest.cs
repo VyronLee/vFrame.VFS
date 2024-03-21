@@ -2,5 +2,5 @@
 
 namespace vFrame.VFS
 {
-    public interface ITextAsyncRequest : IAsyncRequest<string> { }
+    public interface ITextAsyncRequest : ITask<string> { }
 }

@@ -127,7 +127,7 @@ namespace vFrame.VFS
 
         public IBytesAsyncRequest ReadAllBytesAsync(string path) {
             var request = new BytesAsyncRequest {
-                _fileSystemManager = this
+                FileSystemManager = this
             };
             request.Create(path);
             return request;
