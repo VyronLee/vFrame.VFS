@@ -75,8 +75,8 @@ namespace vFrame.VFS
             var validBlocks = _blockInfos.Where(
                 v => !skipDeleted || (v.Flags & BlockFlags.BlockDeleted) <= 0).ToList();
             var blockSize = validBlocks.Sum(v => v.CompressedSize);
-            var blockTableSize = PackageBlockInfo.GetMarshalSize() * validBlocks.Count;
-            var headerSize = PackageHeader.GetMarshalSize();
+            var blockTableSize = PackageBlockInfo.GetStructSize() * validBlocks.Count;
+            var headerSize = PackageHeader.GetStructSize();
             var totalSize = headerSize + blockTableSize + blockSize;
 
             _header.Id = PackageFileSystemConst.Id;
@@ -84,7 +84,7 @@ namespace vFrame.VFS
             _header.TotalSize = totalSize;
             _header.BlockTableOffset = totalSize - blockTableSize;
             _header.BlockTableSize = blockTableSize;
-            _header.BlockOffset = PackageHeader.GetMarshalSize();
+            _header.BlockOffset = PackageHeader.GetStructSize();
             _header.BlockSize = blockSize;
             _header.Reserved1 = 0;
             _header.Reserved2 = 0;

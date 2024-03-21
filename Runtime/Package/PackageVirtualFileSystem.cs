@@ -35,10 +35,10 @@ namespace vFrame.VFS
             _header = new PackageHeader {
                 Id = PackageFileSystemConst.Id,
                 Version = PackageFileSystemConst.Version,
-                TotalSize = PackageHeader.GetMarshalSize(),
-                BlockTableOffset = PackageHeader.GetMarshalSize(),
+                TotalSize = PackageHeader.GetStructSize(),
+                BlockTableOffset = PackageHeader.GetStructSize(),
                 BlockTableSize = 0,
-                BlockOffset = PackageHeader.GetMarshalSize(),
+                BlockOffset = PackageHeader.GetStructSize(),
                 BlockSize = 0,
                 Reserved1 = 0,
                 Reserved2 = 0,

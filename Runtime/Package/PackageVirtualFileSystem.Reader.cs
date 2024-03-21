@@ -6,7 +6,7 @@ namespace vFrame.VFS
     public partial class PackageVirtualFileSystem
     {
         private bool ReadHeader() {
-            if (_vpkStream.Length < PackageHeader.GetMarshalSize()) {
+            if (_vpkStream.Length < PackageHeader.GetStructSize()) {
                 return false;
             }
 
@@ -87,10 +87,10 @@ namespace vFrame.VFS
         private static bool ValidateHeader(PackageHeader header) {
             return header.Id == PackageFileSystemConst.Id
                    && header.Version == PackageFileSystemConst.Version
-                   && header.TotalSize > PackageHeader.GetMarshalSize()
+                   && header.TotalSize > PackageHeader.GetStructSize()
                    && header.BlockTableOffset >= header.BlockOffset + header.BlockSize
-                   && header.BlockTableSize % PackageBlockInfo.GetMarshalSize() == 0
-                   && header.BlockOffset >= PackageHeader.GetMarshalSize()
+                   && header.BlockTableSize % PackageBlockInfo.GetStructSize() == 0
+                   && header.BlockOffset >= PackageHeader.GetStructSize()
                    && header.BlockSize >= 0
                 ;
         }
