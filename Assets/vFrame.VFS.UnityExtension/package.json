@@ -1,0 +1,18 @@
+{
+  "name": "com.vyronlee.vframe.vfs.unity-extension",
+  "version": "1.0.1",
+  "displayName": "vFrame VFS UnityExtension",
+  "description": "Universal virtual file system.",
+  "unity": "2019.4",
+  "keywords": [
+    "vFrame",
+    "vFrame VFS",
+    "vFrame VFS UnityExtension"
+  ],
+  "author": {
+    "name": "VyronLee",
+    "email": "lwz_jz@hotmail.com",
+    "url": "https://vyronlee.com"
+  },
+  "license": "Apache-2.0"
+}
