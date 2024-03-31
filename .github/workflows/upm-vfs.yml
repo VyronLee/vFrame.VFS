@@ -1,0 +1,28 @@
+name: Update-UPM-VFS-Branch
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Tag name
+        id: tag
+        run: echo ::set-output name=name::${GITHUB_REF#refs/tags/v}
+
+      - name: Create UPM Core Branches
+        uses: hecomi/create-upm-branch-action@main
+        with:
+          git-tag: ${{ steps.tag.outputs.name }}
+          main-branch: master
+          upm-branch: upm-vfs
+          root-files: "README.md README_en.md LICENSE"
+          pkg-root-dir-path: Assets/vFrame.Core
