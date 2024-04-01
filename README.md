@@ -10,14 +10,14 @@
 * [常规用途](#常规用途)
 * [结构](#结构)
 * [安装](#安装)
-* [vFrame.Core](#vframecore)
+* [vFrame.VFS](#vframecore)
     + [虚文件系统概述](#虚文件系统概述)
     + [文件流概述](#文件流概述)
     + [文件系统管理器](#文件系统管理器)
     + [使用方式](#使用方式)
         - [文件系统管理器的使用](#文件系统管理器的使用)
         - [包文件的创建](#包文件的创建)
-* [vFrame.Core.UnityExtension](#vframecoreunityextension)
+* [vFrame.VFS.UnityExtension](#vframecoreunityextension)
     + [使用方式](#使用方式)
 * [License](#license)
 
@@ -49,7 +49,7 @@ vFrame.VFS 基于虚文件系统的设计理念，整合并实现了以下功能
 
 如需指定版本，链接后面带上版本号即可
 
-## vFrame.Core
+## vFrame.VFS
 
 ### 虚文件系统概述
 
@@ -321,7 +321,7 @@ packageSystem.Close(true);
 PackageVirtualFileOperator.CreatePackage(YourInputDirectoryPath, YourVPKOutputPath, true);
 ```
 
-## vFrame.Core.UnityExtension
+## vFrame.VFS.UnityExtension
 
 由于安卓平台下，App安装后是无法直接通过`File`来操作`StreamingAssets`下文件的，必须使用`UnityWebRequest`的方式来异步读取。为了解决这个问题，引入了该扩展包进行兼容处理。
 
