@@ -43,11 +43,13 @@ vFrame.VFS 基于虚文件系统的设计理念，整合并实现了以下功能
 
 ## 安装
 
+该 Package 依赖于 [vFrame Core](https://github.com/VyronLee/vFrame.Core)，使用前请先按照说明自行安装。
+
 建议使用 Unity Package Manager 安装，添加以下路径：
 * `vFrame.VFS` https://github.com/VyronLee/vFrame.VFS.git#upm-vfs
 * `vFrame.VFS.UnityExtension` https://github.com/VyronLee/vFrame.VFS.git#upm-vfs-unity
 
-如需指定版本，链接后面带上版本号即可
+如需指定版本，链接后面带上版本号即可。
 
 ## vFrame.VFS
 

@@ -43,11 +43,14 @@ The repository is split into two distinct Packages:
 
 ## Installation
 
-For installation, it's advised to use the Unity Package Manager. You can add the packages via the following URLs:
-* For `vFrame.VFS`, use: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs
-* For `vFrame.VFS.UnityExtension`, use: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs-unity
+Before utilizing this Package, you should first set up [vFrame Core](https://github.com/VyronLee/vFrame.Core) by following the provided instructions.
 
-To install a specific version of the package, just add the desired version number at the end of the URL.
+For installation, it's recommended to use the Unity Package Manager. Just add the URLs below to the package manager:
+
+- For `vFrame.VFS`: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs
+- For `vFrame.VFS.UnityExtension`: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs-unity
+
+To install a specific version, append the desired version number to the end of the URL.
 
 ## vFrame.VFS
 
