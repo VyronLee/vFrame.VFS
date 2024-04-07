@@ -25,4 +25,4 @@ jobs:
           main-branch: master
           upm-branch: upm-vfs-unity
           root-files: "README.md README_en.md LICENSE"
-          pkg-root-dir-path: Assets/vFrame.Core.Unity
+          pkg-root-dir-path: Assets/vFrame.VFS.UnityExtension

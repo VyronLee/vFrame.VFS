@@ -10,14 +10,14 @@ The Virtual File System (VFS) serves as an intermediary in games, designed to pr
 * [Typical Uses](#typical-uses)
 * [Architecture](#architecture)
 * [Installation](#installation)
-* [vFrame.Core](#vframe-core)
+* [vFrame.VFS](#vframe-core)
     + [Virtual File System Overview](#virtual-file-system-overview)
     + [Virtual File Stream Overview](#virtual-file-stream-overview)
     + [File System Manager](#file-system-manager)
     + [How to Use](#how-to-use)
         - [Using the File System Manager](#using-the-file-system-manager)
         - [How to Create Package Files](#how-to-create-package-files)
-* [vFrame.Core.UnityExtension](#vframe-core-unity-extension)
+* [vFrame.VFS.UnityExtension](#vframe-core-unity-extension)
     + [How to Use](#how-to-use-unity-extension)
 * [License](#license)
 
@@ -43,13 +43,16 @@ The repository is split into two distinct Packages:
 
 ## Installation
 
-For installation, it's advised to use the Unity Package Manager. You can add the packages via the following URLs:
-* For `vFrame.VFS`, use: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs
-* For `vFrame.VFS.UnityExtension`, use: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs-unity
+Before utilizing this Package, you should first set up [vFrame Core](https://github.com/VyronLee/vFrame.Core) by following the provided instructions.
 
-To install a specific version of the package, just add the desired version number at the end of the URL.
+For installation, it's recommended to use the Unity Package Manager. Just add the URLs below to the package manager:
 
-## vFrame.Core
+- For `vFrame.VFS`: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs
+- For `vFrame.VFS.UnityExtension`: https://github.com/VyronLee/vFrame.VFS.git#upm-vfs-unity
+
+To install a specific version, append the desired version number to the end of the URL.
+
+## vFrame.VFS
 
 ### Virtual File System Overview
 
@@ -324,7 +327,7 @@ For bulk processing, when you want to apply the same compression and encryption 
 PackageVirtualFileOperator.CreatePackage(YourInputDirectoryPath, YourVPKOutputPath, true);
 ```
 
-## vFrame.Core.UnityExtension
+## vFrame.VFS.UnityExtension
 
 Due to the fact that on Android, you can't directly access files in `StreamingAssets` with the `File` class after the app installation, you must use `UnityWebRequest` for asynchronous reading. To solve this, the extension package is provided for compatibility purposes.
 
