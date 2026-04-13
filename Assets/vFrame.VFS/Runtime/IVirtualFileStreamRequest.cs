@@ -1,5 +1,4 @@
 ﻿using System;
-using vFrame.Core.MultiThreading;
 
 namespace vFrame.VFS
 {
