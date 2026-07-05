@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using vFrame.Core.Base;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {

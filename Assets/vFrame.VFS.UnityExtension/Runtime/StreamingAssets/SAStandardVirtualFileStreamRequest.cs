@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEngine.Networking;
-using vFrame.Core.Loggers;
-using vFrame.Core.Unity.Utils;
+using vFrame.Core;
+using vFrame.Core.Unity;
 
 namespace vFrame.VFS.UnityExtension
 {

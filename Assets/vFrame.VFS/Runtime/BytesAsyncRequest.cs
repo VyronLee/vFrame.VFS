@@ -1,6 +1,5 @@
 ﻿using System;
-using vFrame.Core.Base;
-using vFrame.Core.Loggers;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -47,7 +46,7 @@ namespace vFrame.VFS
                 }
                 catch (Exception e) {
                     Logger.Error(FileSystemConst.LogTag,
-                        "Exception occurred while reading: {0}, msg: {1}", arg, e);
+                        $"Exception occurred while reading: {arg}, msg: {e}");
                 }
                 _isDone = true;
             });
@@ -60,7 +59,7 @@ namespace vFrame.VFS
 
         private byte[] OnHandleTask(string arg) {
             if (null == FileSystemManager) {
-                throw new ArgumentNullException(nameof(FileSystemManager), "FileSystemManager cannot be null");
+                throw new System.ArgumentNullException(nameof(FileSystemManager), "FileSystemManager cannot be null");
             }
             return FileSystemManager.ReadAllBytes(arg);
         }

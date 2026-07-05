@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using vFrame.Core.Loggers;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -33,7 +33,7 @@ namespace vFrame.VFS
                 }
             }
             catch (Exception e) {
-                Logger.Error(FileSystemConst.LogTag, "Error occurred while reading file: {0}", e);
+                Logger.Error(FileSystemConst.LogTag, $"Error occurred while reading file: {e}");
             }
         }
 

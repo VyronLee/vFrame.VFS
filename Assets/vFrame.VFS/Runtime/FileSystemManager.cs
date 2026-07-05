@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using vFrame.Core.Base;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {

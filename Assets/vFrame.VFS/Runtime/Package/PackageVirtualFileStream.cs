@@ -11,9 +11,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using vFrame.Core.Compression;
-using vFrame.Core.Encryption;
-using vFrame.Core.Profiles;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -44,10 +42,7 @@ namespace vFrame.VFS
 
         public bool Open() {
             Debug.Assert(null != _vpkStream);
-            PerfProfile.Start(out var id);
-            PerfProfile.Pin("PackageVirtualFileStream:InternalOpen", id);
             var ret = InternalOpen();
-            PerfProfile.Unpin(id);
             return ret;
         }
 
@@ -143,8 +138,6 @@ namespace vFrame.VFS
 
             // 2. decompress
             if ((_blockInfo.Flags & BlockFlags.BlockCompressed) > 0) {
-                PerfProfile.Start(out var id);
-                PerfProfile.Pin($"PackageVirtualFileStream:Decompress size: {_blockInfo.OriginalSize:n0} bytes: ", id);
                 var buffer = BufferPool.Shared.Rent((int)_blockInfo.OriginalSize);
                 using (var decompressedStream = new MemoryStream(buffer)) {
                     decompressedStream.SetLength(0);
@@ -163,13 +156,10 @@ namespace vFrame.VFS
                 }
 
                 BufferPool.Shared.Return(buffer);
-                PerfProfile.Unpin(id);
             }
 
             // 3. decrypt
             if ((_blockInfo.Flags & BlockFlags.BlockEncrypted) > 0) {
-                PerfProfile.Start(out var id);
-                PerfProfile.Pin($"PackageVirtualFileStream:Decrypt size: {_blockInfo.OriginalSize:n0} bytes", id);
                 var buffer = BufferPool.Shared.Rent((int)_blockInfo.OriginalSize);
                 using (var decryptedStream = new MemoryStream(buffer)) {
                     decryptedStream.SetLength(0);
@@ -189,7 +179,6 @@ namespace vFrame.VFS
                 }
 
                 BufferPool.Shared.Return(buffer);
-                PerfProfile.Unpin(id);
             }
 
             _memoryStream = tempStream;

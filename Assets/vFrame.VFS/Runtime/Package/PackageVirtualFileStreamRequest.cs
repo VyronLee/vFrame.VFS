@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
-using vFrame.Core.Loggers;
-using vFrame.Core.Profiles;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -19,9 +18,6 @@ namespace vFrame.VFS
 
         private void OpenPackageStreamAsync(object state) {
             try {
-                PerfProfile.Start(out var id);
-                PerfProfile.Pin("PackageVirtualFileStreamRequest:OpenPackageStreamAsync", id);
-
                 var context = (PackageStreamContext)state;
                 var vpkStream = context.Stream;
                 var stream = new PackageVirtualFileStream(vpkStream, context.BlockInfo);
@@ -29,8 +25,6 @@ namespace vFrame.VFS
                     throw new PackageStreamOpenFailedException();
                 }
                 Stream = stream;
-
-                PerfProfile.Unpin(id);
 
                 lock (_lockObject) {
                     _finished = true;
@@ -44,7 +38,7 @@ namespace vFrame.VFS
                 }
             }
             catch (Exception e) {
-                Logger.Error(FileSystemConst.LogTag, "Error occurred while reading package: {0}", e);
+                Logger.Error(FileSystemConst.LogTag, $"Error occurred while reading package: {e}");
             }
         }
 

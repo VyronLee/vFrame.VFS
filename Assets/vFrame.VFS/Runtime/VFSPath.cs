@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
-using vFrame.Core.Extensions;
-using vFrame.Core.Utils;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -11,7 +10,7 @@ namespace vFrame.VFS
 
         private VFSPath(string value) {
             if (null == value) {
-                throw new ArgumentNullException(nameof(value));
+                throw new System.ArgumentNullException(nameof(value));
             }
             _value = string.Empty;
             _value = Normalize(value);
@@ -19,7 +18,7 @@ namespace vFrame.VFS
 
         public static VFSPath Create(string value) {
             if (null == value) {
-                throw new ArgumentNullException(nameof(value));
+                throw new System.ArgumentNullException(nameof(value));
             }
             return new VFSPath(value);
         }

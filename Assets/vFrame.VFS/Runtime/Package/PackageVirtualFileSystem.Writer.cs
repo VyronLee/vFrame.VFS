@@ -2,10 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using vFrame.Core.Compression;
-using vFrame.Core.Encryption;
-using vFrame.Core.Extensions;
-using vFrame.Core.Loggers;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {

@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using vFrame.Core.Profiles;
 
 namespace vFrame.VFS
 {
@@ -299,26 +298,17 @@ namespace vFrame.VFS
         //=========================================================//
 
         private void InternalOpen() {
-            PerfProfile.Start(out var id);
-            PerfProfile.Pin("PackageVirtualFileSystem:ReadHeader", id);
             if (!ReadHeader()) {
                 throw new PackageFileSystemHeaderDataErrorException();
             }
-            PerfProfile.Unpin(id);
 
-            PerfProfile.Start(out id);
-            PerfProfile.Pin("PackageVirtualFileSystem:ReadBlockTable", id);
             if (!ReadBlockTable()) {
                 throw new PackageFileSystemBlockTableDataErrorException();
             }
-            PerfProfile.Unpin(id);
 
-            PerfProfile.Start(out id);
-            PerfProfile.Pin("PackageVirtualFileSystem:ReadFileList", id);
             if (!ReadFileList()) {
                 throw new PackageFileSystemFileListDataErrorException();
             }
-            PerfProfile.Unpin(id);
 
             Rehash();
 

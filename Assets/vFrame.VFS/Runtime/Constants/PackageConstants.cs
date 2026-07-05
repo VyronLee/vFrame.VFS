@@ -1,4 +1,4 @@
-﻿using vFrame.Core.Loggers;
+﻿using vFrame.Core;
 
 namespace vFrame.VFS
 {

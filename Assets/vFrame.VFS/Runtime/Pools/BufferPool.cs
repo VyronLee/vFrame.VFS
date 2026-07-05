@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using vFrame.Core.Loggers;
+using vFrame.Core;
 
 namespace vFrame.VFS
 {
@@ -69,14 +69,14 @@ namespace vFrame.VFS
             buffer = new byte[minimumLength];
             if (_logMissing) {
                 Logger.Warning(FileSystemConst.LogTag,
-                    "Rent from buffer pool failed, size: {0}, force create new buffer..", minimumLength);
+                    $"Rent from buffer pool failed, size: {minimumLength}, force create new buffer..");
             }
             return buffer;
         }
 
         public void Return(byte[] array, bool clearArray = false) {
             if (null == array) {
-                throw new ArgumentNullException(nameof(array));
+                throw new System.ArgumentNullException(nameof(array));
             }
 
             var idx = SelectBucketToReturn(array.Length);
