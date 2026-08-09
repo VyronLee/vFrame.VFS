@@ -1,0 +1,14 @@
+{
+  "name": "vFrame.VFS.Tests.EditMode",
+  "references": [
+    "vFrame.Core",
+    "vFrame.VFS"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}

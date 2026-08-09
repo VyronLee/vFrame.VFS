@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -9,7 +9,17 @@ namespace vFrame.VFS
     public class FileSystemManager : BaseObject, IFileSystemManager
     {
         private readonly object _lockObject = new object();
-        private int _count;
+
+        /// <summary>
+        /// Monotonic key generator for <see cref="_fileSystems"/>. It is ONLY ever
+        /// incremented — never decremented on removal — so that removing a middle file
+        /// system leaves a gap (skipped by readers) without shrinking the key space or
+        /// orphaning higher-indexed mounts. Decrementing it previously caused two bugs:
+        /// readers' <c>for (i &lt; _nextId)</c> loop no longer reached higher keys, and the
+        /// next <see cref="AddFileSystem"/> reused a key still held by a surviving mount
+        /// (<see cref="ConcurrentDictionary{TKey,TValue}.TryAdd"/> silently failed).
+        /// </summary>
+        private int _nextId;
         private ConcurrentDictionary<int, IVirtualFileSystem> _fileSystems;
 
         public virtual IVirtualFileSystem AddFileSystem(VFSPath vfsPath) {
@@ -31,8 +41,8 @@ namespace vFrame.VFS
 
         public void AddFileSystem(IVirtualFileSystem virtualFileSystem) {
             lock (_lockObject) {
-                if (_fileSystems.TryAdd(_count, virtualFileSystem)) {
-                    Interlocked.Increment(ref _count);
+                if (_fileSystems.TryAdd(_nextId, virtualFileSystem)) {
+                    Interlocked.Increment(ref _nextId);
                 }
             }
         }
@@ -54,13 +64,14 @@ namespace vFrame.VFS
                 }
 
                 if (_fileSystems.TryRemove(index, out var fs)) {
-                    Interlocked.Decrement(ref _count);
+                    // _nextId is monotonic — do NOT decrement. The removed key becomes a
+                    // gap that readers skip via TryGetValue + continue.
                 }
             }
         }
 
         public IVirtualFileStream GetStream(string path, FileMode mode = FileMode.Open) {
-            var count = _count;
+            var count = _nextId;
             for (var i = 0; i < count; i++) {
                 if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
@@ -78,7 +89,7 @@ namespace vFrame.VFS
         }
 
         public IVirtualFileStreamRequest GetStreamAsync(string path) {
-            var count = _count;
+            var count = _nextId;
             for (var i = 0; i < count; i++) {
                 if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
@@ -96,7 +107,7 @@ namespace vFrame.VFS
         }
 
         public IEnumerator<IVirtualFileSystem> GetEnumerator() {
-            var count = _count;
+            var count = _nextId;
             for (var i = 0; i < count; i++) {
                 if (!_fileSystems.TryGetValue(i, out var fileSystem)) {
                     continue;
@@ -138,7 +149,7 @@ namespace vFrame.VFS
                 _fileSystems = new ConcurrentDictionary<int, IVirtualFileSystem>();
             }
 
-            Interlocked.Exchange(ref _count, 0);
+            Interlocked.Exchange(ref _nextId, 0);
         }
 
         protected override void OnDestroy() {
@@ -149,7 +160,7 @@ namespace vFrame.VFS
                 _fileSystems.Clear();
             }
 
-            Interlocked.Exchange(ref _count, 0);
+            Interlocked.Exchange(ref _nextId, 0);
         }
     }
 }
