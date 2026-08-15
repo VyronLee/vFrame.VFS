@@ -1,12 +1,12 @@
-﻿//------------------------------------------------------------
-//        File:  PackageStream.cs
-//       Brief:  Package stream.
+// ------------------------------------------------------------
+//         File: PackageVirtualFileStream.cs
+//        Brief: PackageVirtualFileStream.cs
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2020-03-11 16:39
-//   Copyright:  Copyright (c) 2020, VyronLee
-//============================================================
+//     Modified: 2020-03-11 16:39
+//    Copyright: Copyright (c) 2026, VyronLee
+// ============================================================
 
 using System;
 using System.Diagnostics;
@@ -25,7 +25,8 @@ namespace vFrame.VFS
         private MemoryStream _memoryStream;
         private bool _opened;
 
-        internal PackageVirtualFileStream(PackageVirtualFileSystemStream vpkStream, PackageBlockInfo blockInfo) {
+        internal PackageVirtualFileStream(PackageVirtualFileSystemStream vpkStream, PackageBlockInfo blockInfo)
+        {
             _vpkStream = vpkStream;
             _blockInfo = blockInfo;
         }
@@ -40,13 +41,15 @@ namespace vFrame.VFS
             set => _memoryStream.Position = value;
         }
 
-        public bool Open() {
+        public bool Open()
+        {
             Debug.Assert(null != _vpkStream);
             var ret = InternalOpen();
             return ret;
         }
 
-        public override void Close() {
+        public override void Close()
+        {
             if (_closed) {
                 return;
             }
@@ -66,37 +69,44 @@ namespace vFrame.VFS
             base.Close();
         }
 
-        public byte[] GetBuffer() {
+        public byte[] GetBuffer()
+        {
             ValidateStreamState();
             return _memoryStream.GetBuffer();
         }
 
-        public byte[] ToArray() {
+        public byte[] ToArray()
+        {
             ValidateStreamState();
             return _memoryStream.ToArray();
         }
 
-        public override void Flush() {
+        public override void Flush()
+        {
             ValidateStreamState();
             _memoryStream.Flush();
         }
 
-        public override int Read(byte[] buffer, int offset, int count) {
+        public override int Read(byte[] buffer, int offset, int count)
+        {
             ValidateStreamState();
             return _memoryStream.Read(buffer, offset, count);
         }
 
-        public override long Seek(long offset, SeekOrigin origin) {
+        public override long Seek(long offset, SeekOrigin origin)
+        {
             ValidateStreamState();
             return _memoryStream.Seek(offset, origin);
         }
 
-        public override void SetLength(long value) {
+        public override void SetLength(long value)
+        {
             ValidateStreamState();
             _memoryStream.SetLength(value);
         }
 
-        public override void Write(byte[] buffer, int offset, int count) {
+        public override void Write(byte[] buffer, int offset, int count)
+        {
             ValidateStreamState();
             _memoryStream.Write(buffer, offset, count);
         }
@@ -105,7 +115,8 @@ namespace vFrame.VFS
         //                         Private                     ==//
         //=======================================================//
 
-        private void ValidateStreamState() {
+        private void ValidateStreamState()
+        {
             if (!_opened) {
                 throw new PackageStreamNotOpenedException();
             }
@@ -114,7 +125,8 @@ namespace vFrame.VFS
             }
         }
 
-        private bool InternalOpen() {
+        private bool InternalOpen()
+        {
             ValidateBlockInfo(_vpkStream);
 
             var maxSize = Math.Max(_blockInfo.OriginalSize, _blockInfo.CompressedSize);
@@ -133,8 +145,12 @@ namespace vFrame.VFS
             tempStream.SetLength(0);
 
             _vpkStream.Lock();
-            BufferedCopyTo(_vpkStream, tempStream, _blockInfo.Offset, (int)dataSize);
-            _vpkStream.Unlock();
+            try {
+                BufferedCopyTo(_vpkStream, tempStream, _blockInfo.Offset, (int)dataSize);
+            }
+            finally {
+                _vpkStream.Unlock();
+            }
 
             // 2. decompress
             if ((_blockInfo.Flags & BlockFlags.BlockCompressed) > 0) {
@@ -193,7 +209,8 @@ namespace vFrame.VFS
             return true;
         }
 
-        private void ValidateBlockInfo(Stream inputStream) {
+        private void ValidateBlockInfo(Stream inputStream)
+        {
             if ((_blockInfo.Flags & BlockFlags.BlockExists) <= 0) {
                 throw new PackageBlockDisposedException();
             }
@@ -212,7 +229,8 @@ namespace vFrame.VFS
             }
         }
 
-        private static void BufferedCopyTo(Stream from, Stream to, long offset, int count) {
+        private static void BufferedCopyTo(Stream from, Stream to, long offset, int count)
+        {
             if (count <= 0) {
                 return;
             }

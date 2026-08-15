@@ -156,3 +156,7 @@ sysinfo.txt
 
 # Custom
 .idea
+
+# Test runner artifacts (run-tests.ps1)
+/TestResults/
+/test-run.log
