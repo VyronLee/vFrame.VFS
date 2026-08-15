@@ -104,7 +104,13 @@ dotnet build "D:/Workspace/vFrame/vFrame.VFS/vFrame.VFS.csproj" --no-restore
 dotnet build "D:/Workspace/vFrame/vFrame.VFS/vFrame.VFS.UnityExtension.csproj" --no-restore
 ```
 
-**No test assemblies** — VFS has no unit tests in this repo.
+**Tests (EditMode, in-process runner):**
+`-runTests` is blocked on this host (UTP ports); use the package-local in-process runner instead:
+```powershell
+& "D:/Workspace/vFrame/vFrame.VFS/run-tests.ps1"
+# UnityExitCode=0 → all pass; results in TestResults/headless-editmode-results.xml
+```
+Test assembly: `Assets/vFrame.VFS.Tests.EditMode/` (asmdef references `vFrame.Core` + `vFrame.VFS`).
 
 ## Gotchas
 
