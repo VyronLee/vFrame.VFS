@@ -21,13 +21,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
         run: |
-          gh repo clone VyronLee/vFrame.Core ../vFrame.Core -- --depth 1 --branch develop
+          gh repo clone VyronLee/vFrame.Core vFrame.Core -- --depth 1 --branch develop
           python3 - <<'PY'
           from pathlib import Path
           manifest = Path('vFrame.VFS/Packages/manifest.json')
           manifest.write_text(manifest.read_text().replace(
               'file:D:/Workspace/vFrame/vFrame.Core/',
-              'file:../../vFrame.Core/'))
+              'file:../vFrame.Core/'))
           PY
       - uses: game-ci/unity-test-runner@v4
         env:
