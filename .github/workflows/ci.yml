@@ -27,7 +27,7 @@ jobs:
           manifest = Path('vFrame.VFS/Packages/manifest.json')
           manifest.write_text(manifest.read_text().replace(
               'file:D:/Workspace/vFrame/vFrame.Core/',
-              'file:../vFrame.Core/'))
+              'file:../../vFrame.Core/'))
           PY
       - uses: game-ci/unity-test-runner@v4
         env:
