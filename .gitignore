@@ -160,3 +160,4 @@ sysinfo.txt
 # Test runner artifacts (run-tests.ps1)
 /TestResults/
 /test-run.log
+.codegraph/
