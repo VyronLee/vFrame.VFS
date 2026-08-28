@@ -1,3 +1,6 @@
+# Repository Agent Guidance
+
+The workspace-level guidance in `../AGENTS.md` applies to this repository. Read its referenced rules when their trigger matches the task.
 # vFrame.VFS
 
 Virtual file system for Unity — unified API for directories and `.vpk` packages.
@@ -120,7 +123,7 @@ Test assembly: `Assets/vFrame.VFS.Tests.EditMode/` (asmdef references `vFrame.Co
 - **File enumeration on Android:** `SAStandardVirtualFileSystem.GetFiles()` throws `NotSupportedException` — not supported.
 - **Editormode VPK packing:** Works since 2026-07-05 (de-pooled from ObjectPool). Do NOT re-add pooling — `BaseObject` terminal lifecycle forbids reuse.
 
-**Cross-package conventions (workspace-root CLAUDE.md):**
+**Cross-package conventions (workspace-root AGENTS.md):**
 - Coding standards, testing, compilation verification, namespace conflicts (ILogger), lifecycle semantics
 
 ## How it's Consumed
